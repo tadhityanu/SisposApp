@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="32dp"
+    android:layout_marginRight="32dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="@color/blue_ocean"
+    app:cardElevation="6dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/img_item"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:src="@drawable/ic_place_holder"
+            android:scaleType="fitXY"/>
+
+        <TextView
+            android:id="@+id/txt_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_item_name"
+            android:textStyle="bold"
+            android:fontFamily="@font/coolvetica_rg"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="4"
+            android:shadowRadius="3"
+            app:layout_constraintTop_toBottomOf="@id/img_item"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="12dp"
+            android:letterSpacing="0.10"
+            android:layout_marginLeft="18dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/txt_item_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txt_item_name"
+            app:layout_constraintLeft_toLeftOf="@id/txt_item_name"
+            android:text="@string/dummy_price"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/coolvetica_rg"
+            android:letterSpacing="0.09"
+            android:textStyle="italic"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="4"
+            android:shadowRadius="3"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/txt_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/txt_item_name"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/txt_item_price"
+            android:layout_marginRight="14dp"
+            android:text="@string/dummy_quantity"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:fontFamily="@font/coolvetica_rg"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="4"
+            android:shadowRadius="4"
+            android:padding="8dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
