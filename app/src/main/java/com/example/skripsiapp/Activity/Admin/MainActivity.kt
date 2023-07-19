@@ -10,6 +10,7 @@ import android.widget.SearchView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.skripsiapp.Activity.Gudang.DetailProductActivity
 import com.example.skripsiapp.Activity.Gudang.LessProductActivity
 import com.example.skripsiapp.Activity.Gudang.MainWarehouseActivity
 import com.example.skripsiapp.Activity.LoginActivity
@@ -89,6 +90,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setProductList(){
         productList = mutableListOf()
+        showLoading(true)
         dbReference = FirebaseDatabase.getInstance().getReference("item_data")
         dbReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -98,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                         if (item != null){
                             productList.add(item)
                             productList.sortBy {
-                                it.itemCurrentQuantity
+                                it.itemName
                             }
                         }
                     }
@@ -108,6 +110,17 @@ class MainActivity : AppCompatActivity() {
                     binding.rvItem.setHasFixedSize(true)
                     adapter = ItemProductAdapter(applicationContext, productList)
                     binding.rvItem.adapter = adapter
+
+                    adapter.setOnClickCallBack(object : ItemProductAdapter.OnItemClickCallBack {
+                        override fun onItemClicked(data: ProductModel) {
+                            showLoading(true)
+                            val intent = Intent(this@MainActivity, DetailAdminActivity::class.java)
+                            intent.putExtra("item_Id", data.id)
+                            intent.putExtra("item_first_quantity", data.itemFirstQuantity.toString())
+                            intent.putExtra("item_image", data.itemImage)
+                            startActivity(intent)
+                        }
+                    })
 
                     binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?): Boolean {
@@ -126,6 +139,7 @@ class MainActivity : AppCompatActivity() {
                     })
 
                 } else{
+                    showLoading(false)
                     binding.imgEmpty.visibility = View.VISIBLE
                 }
             }

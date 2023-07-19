@@ -1,10 +1,10 @@
 package com.example.skripsiapp.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ListView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.skripsiapp.Activity.Gudang.DetailProductActivity
 import com.example.skripsiapp.DataModel.ProductModel
@@ -15,15 +15,23 @@ import com.squareup.picasso.Picasso
 
 class MonthlySoldItemAdapter(var context : Context, var listItem : MutableList<ProductModel>) : RecyclerView.Adapter<MonthlySoldItemAdapter.ListViewHolder>() {
 
+
+    private lateinit var onItemClickCallBack: OnItemClickCallBack
+
+    fun setOnClickCallBack(onItemClickCallBack: OnItemClickCallBack){
+        this.onItemClickCallBack = onItemClickCallBack
+    }
     inner class ListViewHolder(val binding : ItemProductBinding) : RecyclerView.ViewHolder(binding.root){
+        @SuppressLint("SetTextI18n")
         fun bind(item : ProductModel){
             val fStorage = FirebaseStorage.getInstance()
             val ref = fStorage.reference
 
             binding.apply {
-                txtItemName.text = item.itemName
+                val name = item.itemName.toString().split(" ")
+                txtItemName.text = "${name[0]} ${name[1]}..."
                 txtItemPrice.text = item.itemPrice
-                txtQuantity.text = item.sold_stock.toString()
+                txtQuantity.text = item.stockQuantity.toString()
                 ref.child("img_item/${item.itemImage}")
                     .downloadUrl.addOnSuccessListener { uri->
                         Picasso.get().load(uri).into(imgItem)
@@ -57,7 +65,16 @@ class MonthlySoldItemAdapter(var context : Context, var listItem : MutableList<P
     }
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        listItem.get(position).let { holder.bind(it) }
+        listItem.get(position).let {
+            holder.bind(it)
+            holder.itemView.setOnClickListener {
+                onItemClickCallBack.onItemClicked(listItem[holder.adapterPosition])
+            }
+        }
+    }
+
+    interface OnItemClickCallBack {
+        fun onItemClicked (data:ProductModel)
     }
 
 }

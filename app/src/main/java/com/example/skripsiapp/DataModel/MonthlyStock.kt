@@ -1,6 +1,6 @@
 package com.example.skripsiapp.DataModel
 
-class MonthlySoldStock {
+class MonthlyStock {
 
     var stockMonth1 : Int = 0
     var stockMonth2 : Int = 0

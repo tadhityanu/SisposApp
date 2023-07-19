@@ -74,8 +74,15 @@ class LoginActivity : AppCompatActivity() {
                 showLoading(false)
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Email atau Password salah", Toast.LENGTH_LONG).show()
                 showLoading(false)
+                when(it.localizedMessage){
+                    "There is no user record corresponding to this identifier. The user may have been deleted." ->{
+                        Toast.makeText(this, "Akun Tidak Tersedia", Toast.LENGTH_LONG).show()
+                    }
+                    else->{
+                        Toast.makeText(this, "Email atau Password salah", Toast.LENGTH_LONG).show()
+                    }
+                }
             }
     }
 

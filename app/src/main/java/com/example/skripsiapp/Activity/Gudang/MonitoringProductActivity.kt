@@ -1,12 +1,12 @@
 package com.example.skripsiapp.Activity.Gudang
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.skripsiapp.DataModel.ProductModel
-import com.example.skripsiapp.R
 import com.example.skripsiapp.adapter.ItemProductAdapter
 import com.example.skripsiapp.databinding.ActivityMonitoringProductBinding
 import com.google.firebase.database.DataSnapshot
@@ -61,7 +61,7 @@ class MonitoringProductActivity : AppCompatActivity() {
                 if (snapshot.exists()){
                     for (data in snapshot.children){
                         val item = data.getValue(ProductModel::class.java)
-                        if (item != null && item.sold_stock != 0){
+                        if (item != null && item.stockQuantity != 0){
                             productList.add(item)
                         }
                     }
@@ -73,6 +73,18 @@ class MonitoringProductActivity : AppCompatActivity() {
                         adapter = ItemProductAdapter(applicationContext, productList)
                         rv.adapter = adapter
                         showLoading(false)
+
+                        adapter.setOnClickCallBack(object : ItemProductAdapter.OnItemClickCallBack {
+                            override fun onItemClicked(data: ProductModel) {
+                                showLoading(true)
+                                val intent = Intent(this@MonitoringProductActivity, DetailProductActivity::class.java)
+                                intent.putExtra("item_Id", data.id)
+                                intent.putExtra("item_first_quantity", data.itemFirstQuantity.toString())
+                                intent.putExtra("item_image", data.itemImage)
+                                startActivity(intent)
+                            }
+                        })
+
                     } else{
                         showLoading(false)
                         binding.emptyLayout.visibility = View.VISIBLE

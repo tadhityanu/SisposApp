@@ -6,16 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import com.bumptech.glide.Glide
-import com.example.skripsiapp.Activity.Admin.MainActivity
-import com.example.skripsiapp.DataModel.CartModel
-import com.example.skripsiapp.DataModel.MonthlySoldStock
+import com.example.skripsiapp.DataModel.MonthlyStock
 import com.example.skripsiapp.DataModel.ProductModel
 import com.example.skripsiapp.Helper.AlarmReceiver
 import com.example.skripsiapp.R
@@ -28,8 +23,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.snapshots
-import com.google.firebase.database.ktx.values
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -39,12 +32,9 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.squareup.picasso.Picasso
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.NumberFormat
 import java.util.Calendar
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.properties.Delegates
 
 class DetailProductActivity : AppCompatActivity() {
 
@@ -132,102 +122,6 @@ class DetailProductActivity : AppCompatActivity() {
         setView()
     }
 
-//    private fun addToCart(){
-//        val dbItem = dbItemReference.child(pId)
-//        val dbCart = dbCartReference.child(pId)
-//
-//        dbCart.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                if (snapshot.exists()){
-//                    val cartModel = snapshot.getValue(CartModel::class.java)
-//
-//                    dbItem.get().addOnSuccessListener {
-//                        showLoading(false)
-//                        cartModel!!.id = pId
-//                        cartModel.name = cartModel.name
-//                        cartModel.price = cartModel.price
-//                        cartModel.quantity = cartModel.quantity + 1
-//                        cartModel.totalPrice = cartModel.price!!.toInt() * cartModel.quantity
-//                        dbCart.setValue(cartModel)
-//                    }
-//                            .addOnSuccessListener {
-//                                showLoading(false)
-//                                val pModel = ProductModel()
-//                                pModel.id = pId
-//                                pModel.itemName = productName.text.toString()
-//                                pModel.itemPrice = productPrice.text.toString()
-//                                pModel.itemFirstQuantity = pFirstQuantity.toInt()
-//                                pModel.itemCurrentQuantity = productCurrentQuantity.text.toString().toInt() - 1
-//                                pModel.itemDescription = productDesc.text.toString()
-//                                pModel.itemImage = pImage
-//                                dbItem.setValue(pModel)
-//
-//                                Toast.makeText(this@DetailProductActivity,"Berhasil menambah keranjang", Toast.LENGTH_LONG).show()
-//                                finish()
-//                            }
-//
-//                        .addOnFailureListener {
-//                            Toast.makeText(this@DetailProductActivity,"Gagal menambah keranjang", Toast.LENGTH_LONG).show()
-//                        }
-//                } else {
-//                    val cModel = CartModel()
-//                    val priceSplit = productPrice.text.split("Rp. ")
-//                    val intPrice = priceSplit[1].replace(".", "")
-//
-//                    cModel.id = pId
-//                    cModel.name =productName.text.toString()
-//                    cModel.price = intPrice
-//                    cModel.quantity = 1
-//                    cModel.totalPrice = cModel.price.toString().toInt()
-//
-//                    dbCart
-//                        .setValue(cModel)
-//                        .addOnSuccessListener {
-//
-//                            val pModel = ProductModel()
-//                            pModel.id = pId
-//                            pModel.itemName = productName.text.toString()
-//                            pModel.itemPrice = productPrice.text.toString()
-//                            pModel.itemFirstQuantity = pFirstQuantity.toInt()
-//                            pModel.itemCurrentQuantity = productCurrentQuantity.text.toString().toInt() - 1
-//                            pModel.itemDescription = productDesc.text.toString()
-//                            pModel.itemImage = pImage
-//
-//                            dbItem.setValue(pModel)
-//                            Toast.makeText(this@DetailProductActivity,"Berhasil menambah keranjang", Toast.LENGTH_LONG).show()
-//                            finish()
-//                        }
-//                        .addOnFailureListener{
-//                            Toast.makeText(this@DetailProductActivity,"Gagal menambah keranjang", Toast.LENGTH_LONG).show()
-//                        }
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//            }
-//        })
-//    }
-
-//    private fun checkUserLevel(userId : String){
-//        val docReference =fStore.collection("user").document(userId)
-//        docReference.get()
-//            .addOnSuccessListener { docSnapshot ->
-//                if (docSnapshot != null){
-//                    val userAccess = docSnapshot.data?.get("accessLevel").toString()
-//                    when(userAccess){
-//                        "Admin" ->{
-//                            binding.btnAddCart.visibility = View.VISIBLE
-//                            binding.cvEditProduct.visibility = View.GONE
-//                        }
-//                        "Gudang" -> {
-//                            binding.btnAddCart.visibility = View.GONE
-//                            binding.cvEditProduct.visibility = View.VISIBLE
-//                        }
-//                    }
-//                }
-//            }
-//    }
-
     private fun setAction(){
         btnForecastStock.setOnClickListener {
             showLoading(true)
@@ -314,7 +208,7 @@ class DetailProductActivity : AppCompatActivity() {
                 productPrice.text = it.child("itemPrice").value.toString()
                 productCurrentQuantity.text = it.child("itemCurrentQuantity").value.toString()
                 productDesc.text = it.child("itemDescription").value.toString()
-                productSoldQuantity.text = it.child("sold_stock").value.toString()
+                productSoldQuantity.text = soldQty.toString()
             }
         }
 
@@ -333,7 +227,7 @@ class DetailProductActivity : AppCompatActivity() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()){
                         val data = snapshot.getValue(ProductModel::class.java)!!
-                        if (data.sold_stock == 0){
+                        if (data.stockQuantity == 0){
                             binding.cvSaveMonthly.visibility = View.GONE
                         } else{
                             binding.cvSaveMonthly.visibility = View.VISIBLE
@@ -355,26 +249,26 @@ class DetailProductActivity : AppCompatActivity() {
             showLoading(true)
             val ref = FirebaseDatabase.getInstance().getReference("item_data")
 
-            ref.child(pId).get().addOnSuccessListener {
+            ref.child(pId).get().addOnSuccessListener { product ->
                 showLoading(false)
-                if (it.child("sold_stock").value != null){
-                    val soldStock = it.child("sold_stock").value.toString().toInt()
+                if (product.child(STOCK_QUANTITY).value != null){
+                    val soldStock = product.child(STOCK_QUANTITY).value.toString().toInt()
 
-                    if (it.child("monthly_sold").value == null){
-                        val monthlySoldQty = MonthlySoldStock()
+                    if (product.child("monthly_stock").value == null){
+                        val monthlySoldQty = MonthlyStock()
                         val clear = 0
                         monthlySoldQty.stockMonth1 = soldStock
 
-                        ref.child(pId).child("monthly_sold").setValue(monthlySoldQty)
-                        ref.child(pId).child("sold_stock").setValue(clear)
+                        ref.child(pId).child("monthly_stock").setValue(monthlySoldQty)
+                        ref.child(pId).child(STOCK_QUANTITY).setValue(clear)
                         Toast.makeText(this@DetailProductActivity, "Data Penjualan Berhasil Disimpan", Toast.LENGTH_SHORT).show()
                     } else{
-                        ref.child(pId).child("monthly_sold").addListenerForSingleValueEvent(object :
+                        ref.child(pId).child("monthly_stock").addListenerForSingleValueEvent(object :
                             ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 if (snapshot.exists()){
                                     val updateData: MutableMap<String, Any> = HashMap()
-                                    val item = snapshot.getValue(MonthlySoldStock::class.java)!!
+                                    val item = snapshot.getValue(MonthlyStock::class.java)!!
 
                                     updateData["stockMonth1"] = soldStock
                                     updateData["stockMonth2"] =item.stockMonth1
@@ -388,8 +282,8 @@ class DetailProductActivity : AppCompatActivity() {
                                     updateData["stockMonth10"] =item.stockMonth9
                                     updateData["stockMonth11"] =item.stockMonth10
 
-                                    ref.child(pId).child("monthly_sold").updateChildren(updateData)
-                                    ref.child(pId).child("sold_stock").setValue(0)
+                                    ref.child(pId).child("monthly_stock").updateChildren(updateData)
+                                    ref.child(pId).child(STOCK_QUANTITY).setValue(0)
                                     Toast.makeText(this@DetailProductActivity, "Data Penjualan Berhasil Disimpan", Toast.LENGTH_SHORT).show()
                                 }
                             }
@@ -408,7 +302,7 @@ class DetailProductActivity : AppCompatActivity() {
     }
 
     private fun forecastAction(){
-        dbItemReference.child(pId).child("monthly_sold").get().addOnSuccessListener {
+        dbItemReference.child(pId).child("monthly_stock").get().addOnSuccessListener {
             showLoading(false)
             if (it.exists()){
 
@@ -635,5 +529,9 @@ class DetailProductActivity : AppCompatActivity() {
         } else {
             binding.pbMain.visibility = View.GONE
         }
+    }
+
+    companion object{
+        private const val STOCK_QUANTITY = "stockQuantity"
     }
 }

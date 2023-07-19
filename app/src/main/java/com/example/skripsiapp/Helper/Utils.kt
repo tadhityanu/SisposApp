@@ -7,6 +7,7 @@ import android.os.Build
 import com.example.skripsiapp.R
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 private const val FILENAME_FORMAT = "dd-MM-yyyy-HH-mm-ss"
@@ -55,5 +56,9 @@ fun createFile(application:Application) : File{
     ) mediaDir else application.filesDir
 
 
-    return File(outputDirectory, "$timeStamp.jpg")
+    val time = Calendar.getInstance().timeInMillis
+    val formater = SimpleDateFormat(FILENAME_FORMAT)
+    val current = formater.format(time)
+
+    return File(outputDirectory, "$current.jpg")
 }

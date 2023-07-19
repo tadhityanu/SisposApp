@@ -16,17 +16,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
 import com.example.skripsiapp.DataModel.ProductModel
-import com.example.skripsiapp.Helper.rotateBitmap
-import com.example.skripsiapp.R
 import com.example.skripsiapp.databinding.ActivityAddNewProductBinding
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import java.io.ByteArrayOutputStream
@@ -54,6 +49,8 @@ class AddNewProductActivity : AppCompatActivity() {
 
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val REQUEST_CODE_PERMISSIONS = 10
+        private const val STOCK_QUANTITY = "stockQuantity"
+
     }
 
     override fun onRequestPermissionsResult(
@@ -124,6 +121,7 @@ class AddNewProductActivity : AppCompatActivity() {
                 val itemPrice = it.child("itemPrice").value.toString()
                 val itemDesc = it.child("itemDescription").value.toString()
                 val itemimage = it.child("itemImage").value.toString()
+                val stock = "0"
 
                 val fStorage = FirebaseStorage.getInstance()
                 val ref = fStorage.reference
@@ -136,7 +134,7 @@ class AddNewProductActivity : AppCompatActivity() {
                 productName.setText(itemName)
                 productPrice.setText(itemPrice)
                 productDesc.setText(itemDesc)
-                productStock.text.clear()
+                productStock.setText(stock)
 
             } else{
                 productName.text.clear()
@@ -206,7 +204,6 @@ class AddNewProductActivity : AppCompatActivity() {
                 }
                 else ->{
                     if (getFile != null) {
-                        showLoading(false)
                         uploadImage(BitmapFactory.decodeFile(getFile?.path))
                     } else{
                         if (idFromIntent != null){
@@ -254,6 +251,7 @@ class AddNewProductActivity : AppCompatActivity() {
         productItem.itemCurrentQuantity = productItem.itemFirstQuantity
         productItem.itemDescription = productDesc.text.toString()
         productItem.itemImage = imgName.toString()
+        productItem.stockQuantity = productStock.text.toString().toInt()
 
         if (
             productName.text.isNotEmpty() &&
@@ -275,6 +273,12 @@ class AddNewProductActivity : AppCompatActivity() {
                         updateData["itemCurrentQuantity"] = productStock.text.toString().toInt() + data.itemCurrentQuantity
                         updateData["itemFirstQuantity"] = productStock.text.toString().toInt() + data.itemCurrentQuantity
                         updateData["itemDescription"] = productDesc.text.toString()
+                        if (data.stockQuantity == 0){
+                            updateData[STOCK_QUANTITY] = productStock.text.toString().toInt() + data.itemCurrentQuantity
+                        } else{
+                            updateData[STOCK_QUANTITY] = data.stockQuantity + productStock.text.toString().toInt()
+                        }
+
                         if (getFile == null){
                             updateData["itemImage"] = data.itemImage.toString()
                         } else{

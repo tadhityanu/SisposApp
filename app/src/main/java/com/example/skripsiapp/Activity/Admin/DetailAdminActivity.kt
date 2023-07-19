@@ -115,14 +115,17 @@ class DetailAdminActivity : AppCompatActivity() {
             if (it.exists()){
 
                 val image = it.child("itemImage").value.toString()
-                val soldQty = it.child("sold_stock").value.toString().toInt()
+                val firstQty = it.child("itemFirstQuantity").value.toString().toInt()
+                val currentQty = it.child("itemCurrentQuantity").value.toString().toInt()
+
+//                val soldQty = it.child("sold_stock").value.toString().toInt()
 
                 showLoading(false)
                 productName.text = it.child("itemName").value.toString()
                 productPrice.text = it.child("itemPrice").value.toString()
                 productCurrentQuantity.text = it.child("itemCurrentQuantity").value.toString()
                 productDesc.text = it.child("itemDescription").value.toString()
-                productSoldQuantity.text = soldQty.toString()
+                productSoldQuantity.text = (firstQty - currentQty).toString()
 
                 ref.child("img_item/${image}").downloadUrl
                     .addOnSuccessListener { uri->
@@ -170,8 +173,7 @@ class DetailAdminActivity : AppCompatActivity() {
                     }
                         .addOnSuccessListener {
                             dbItem.get().addOnSuccessListener {
-                                val productModel = it.child("itemFirstQuantity").value.toString().toInt()
-                                val soldQty = it.child("sold_stock").value.toString().toInt()
+                                val firstQuantity = it.child("itemFirstQuantity").value.toString().toInt()
                                 val image = it.child("itemImage").value.toString()
 
                                 dbItem.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -183,11 +185,10 @@ class DetailAdminActivity : AppCompatActivity() {
                                             updateData["id"] = pId
                                             updateData["itemName"] = productName.text.toString()
                                             updateData["itemPrice"] = productPrice.text.toString()
-                                            updateData["itemFirstQuantity"] = productModel
+                                            updateData["itemFirstQuantity"] = firstQuantity
                                             updateData["itemCurrentQuantity"] = productCurrentQuantity.text.toString().toInt() - 1
                                             updateData["itemDescription"] = productDesc.text.toString()
                                             updateData["itemImage"] = image
-                                            updateData["sold_stock"] = soldQty + 1
 
                                             dbItem.updateChildren(updateData)
                                                 .addOnSuccessListener {
@@ -200,7 +201,7 @@ class DetailAdminActivity : AppCompatActivity() {
                                     }
 
                                     override fun onCancelled(error: DatabaseError) {
-                                        TODO("Not yet implemented")
+                                        Toast.makeText(this@DetailAdminActivity,"Gagal menambah keranjang", Toast.LENGTH_LONG).show()
                                     }
                                 })
                             }
@@ -226,7 +227,6 @@ class DetailAdminActivity : AppCompatActivity() {
                         .addOnSuccessListener {
                             dbItem.get().addOnSuccessListener {
                                 val productModel = it.child("itemFirstQuantity").value.toString().toInt()
-                                val soldQty = it.child("sold_stock").value.toString().toInt()
                                 val image = it.child("itemImage").value.toString()
 
                                 dbItem.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -242,7 +242,6 @@ class DetailAdminActivity : AppCompatActivity() {
                                             updateData["itemCurrentQuantity"] = productCurrentQuantity.text.toString().toInt() - 1
                                             updateData["itemDescription"] = productDesc.text.toString()
                                             updateData["itemImage"] = image
-                                            updateData["sold_stock"] = soldQty + 1
 
                                             dbItem.updateChildren(updateData)
                                                 .addOnSuccessListener {

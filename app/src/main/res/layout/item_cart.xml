@@ -17,19 +17,20 @@
 
         <TextView
             android:id="@+id/txt_item_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:text="@string/dummy_item_name"
             android:textStyle="bold"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textColor="@color/white"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="8dp"
             android:shadowColor="@color/text_shadow"
             android:shadowDy="3"
-            android:shadowRadius="4"/>
+            android:shadowRadius="4"
+            android:layout_marginRight="140dp"/>
         <TextView
             android:id="@+id/txt_price_name"
             android:layout_width="wrap_content"
@@ -48,6 +49,7 @@
             android:letterSpacing="0.08"/>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cv_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"

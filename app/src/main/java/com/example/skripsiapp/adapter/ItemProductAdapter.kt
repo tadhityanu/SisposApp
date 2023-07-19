@@ -22,7 +22,11 @@ import com.squareup.picasso.Picasso
 
 class ItemProductAdapter(var context : Context, var listItem : MutableList<ProductModel>):RecyclerView.Adapter<ItemProductAdapter.ListViewHolder>() {
 
+    private lateinit var onItemClickCallBack: OnItemClickCallBack
 
+    fun setOnClickCallBack(onItemClickCallBack: OnItemClickCallBack){
+        this.onItemClickCallBack = onItemClickCallBack
+    }
     fun setFilteredList(list : MutableList<ProductModel>){
         this.listItem = list
         notifyDataSetChanged()
@@ -38,6 +42,7 @@ class ItemProductAdapter(var context : Context, var listItem : MutableList<Produ
             val ref = fStorage.reference
 
             binding.apply {
+                val name = item.itemName.toString().split(" ")
                 txtItemName.text = item.itemName
                 txtItemPrice.text = item.itemPrice
                 txtQuantity.text = item.itemCurrentQuantity.toString()
@@ -52,42 +57,37 @@ class ItemProductAdapter(var context : Context, var listItem : MutableList<Produ
                     clLayout.setBackgroundResource(R.drawable.bg_gradient_blue)
                 }
 
-                clLayout.setOnClickListener {
-//                    val intent = Intent(itemView.context, DetailProductActivity::class.java)
-//                    intent.putExtra("item_Id", item.id)
-//                    intent.putExtra("item_first_quantity", item.itemFirstQuantity.toString())
-//                    intent.putExtra("item_image", item.itemImage)
-//
-//                    itemView.context.startActivity(intent)
-                    val currentUser =fAuth.currentUser
-                    if (currentUser != null){
-                        val fStore = FirebaseFirestore.getInstance()
-                        val docReference =fStore.collection("user").document(currentUser.uid)
-                        docReference.get()
-                            .addOnSuccessListener { docSnapshot ->
-                                if (docSnapshot != null){
-                                    val userAccess = docSnapshot.data?.get("accessLevel").toString()
-                                    when(userAccess){
-                                        "Admin" ->{
-                                            val intent = Intent(itemView.context, DetailAdminActivity::class.java)
-                                            intent.putExtra("item_Id", item.id)
-                                            intent.putExtra("item_first_quantity", item.itemFirstQuantity.toString())
-                                            intent.putExtra("item_image", item.itemImage)
-                                            itemView.context.startActivity(intent)
-                                        }
-                                        "Gudang" -> {
-                                            val intent = Intent(itemView.context, DetailProductActivity::class.java)
-                                            intent.putExtra("item_Id", item.id)
-                                            intent.putExtra("item_first_quantity", item.itemFirstQuantity.toString())
-                                            intent.putExtra("item_image", item.itemImage)
-                                            itemView.context.startActivity(intent)
-                                        }
-                                    }
-                                }
-                            }
-                    }
-//---------------------------------------------------------------------------------------------------------------------//
-                }
+//                clLayout.setOnClickListener {
+//                    onItemClickCallBack.onItemClicked(listItem[position])
+//                    val currentUser =fAuth.currentUser
+//                    if (currentUser != null){
+//                        val fStore = FirebaseFirestore.getInstance()
+//                        val docReference =fStore.collection("user").document(currentUser.uid)
+//                        docReference.get()
+//                            .addOnSuccessListener { docSnapshot ->
+//                                if (docSnapshot != null){
+//                                    val userAccess = docSnapshot.data?.get("accessLevel").toString()
+//                                    when(userAccess){
+//                                        "Admin" ->{
+//                                            val intent = Intent(itemView.context, DetailAdminActivity::class.java)
+//                                            intent.putExtra("item_Id", item.id)
+//                                            intent.putExtra("item_first_quantity", item.itemFirstQuantity.toString())
+//                                            intent.putExtra("item_image", item.itemImage)
+//                                            itemView.context.startActivity(intent)
+//                                        }
+//                                        "Gudang" -> {
+//                                            val intent = Intent(itemView.context, DetailProductActivity::class.java)
+//                                            intent.putExtra("item_Id", item.id)
+//                                            intent.putExtra("item_first_quantity", item.itemFirstQuantity.toString())
+//                                            intent.putExtra("item_image", item.itemImage)
+//                                            itemView.context.startActivity(intent)
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                    }
+////---------------------------------------------------------------------------------------------------------------------//
+//                }
             }
 
         }
@@ -102,13 +102,21 @@ class ItemProductAdapter(var context : Context, var listItem : MutableList<Produ
     }
 
     override fun onBindViewHolder(holder: ItemProductAdapter.ListViewHolder, position: Int) {
-        listItem.get(position).let { holder.bind(it) }
-
+        listItem.get(position).let {
+            holder.bind(it)
+        }
+        holder.itemView.setOnClickListener {
+            onItemClickCallBack.onItemClicked(listItem[holder.adapterPosition])
+        }
     }
 
     override fun getItemCount(): Int {
         return if (listItem.isEmpty()) 0
         else listItem.size
+    }
+
+    interface OnItemClickCallBack {
+        fun onItemClicked (data:ProductModel)
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.skripsiapp.Activity.Admin
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -83,6 +84,11 @@ class CartActivity : AppCompatActivity() {
         }
         binding.btnCheckout.setOnClickListener{
             showCheckoutDialog()
+        }
+        binding.cvToScanner.setOnClickListener{
+            val intent = Intent(this, QrCodeScannerActivity::class.java)
+            startActivity(intent)
+
         }
     }
 

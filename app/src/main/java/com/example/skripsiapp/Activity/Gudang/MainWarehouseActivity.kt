@@ -11,6 +11,7 @@ import android.widget.SearchView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.view.marginLeft
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.skripsiapp.Activity.LoginActivity
 import com.example.skripsiapp.DataModel.ProductModel
@@ -123,8 +124,8 @@ class MainWarehouseActivity : AppCompatActivity() {
     private fun showItemList(){
 
         productList = mutableListOf()
-        dbReference = FirebaseDatabase.getInstance().getReference("item_data")
         showLoading(true)
+        dbReference = FirebaseDatabase.getInstance().getReference("item_data")
         dbReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 showLoading(false)
@@ -134,7 +135,7 @@ class MainWarehouseActivity : AppCompatActivity() {
                         if (item != null){
                             productList.add(item)
                             productList.sortBy {
-                                it.itemName
+                                it.itemCurrentQuantity
                             }
                         }
                     }
@@ -143,6 +144,17 @@ class MainWarehouseActivity : AppCompatActivity() {
                     binding.rvItem.layoutManager = LinearLayoutManager(this@MainWarehouseActivity)
                     adapter = ItemProductAdapter(applicationContext, productList)
                     binding.rvItem.adapter = adapter
+
+                    adapter.setOnClickCallBack(object : ItemProductAdapter.OnItemClickCallBack {
+                        override fun onItemClicked(data: ProductModel) {
+                            showLoading(true)
+                            val intent = Intent(this@MainWarehouseActivity, DetailProductActivity::class.java)
+                            intent.putExtra("item_Id", data.id)
+                            intent.putExtra("item_first_quantity", data.itemFirstQuantity.toString())
+                            intent.putExtra("item_image", data.itemImage)
+                            startActivity(intent)
+                        }
+                    })
 
                     binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?): Boolean {

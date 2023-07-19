@@ -14,7 +14,12 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import com.example.skripsiapp.R
 import com.example.skripsiapp.databinding.ActivityRegisterBinding
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
@@ -22,6 +27,7 @@ import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.lang.Exception
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -66,6 +72,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun buttonAction(){
         btnRegister.setOnClickListener {
+            showLoading(true)
             checkField()
         }
     }
@@ -76,6 +83,7 @@ class RegisterActivity : AppCompatActivity() {
         val pass = edtRegisterPass.text.toString()
         fAuth.createUserWithEmailAndPassword(email, pass)
             .addOnSuccessListener { authResult ->
+                showLoading(false)
                 val userId =FirebaseAuth.getInstance().currentUser!!.uid
 
                 val radioId = rgAccessLevel.checkedRadioButtonId
@@ -101,8 +109,23 @@ class RegisterActivity : AppCompatActivity() {
                 finish()
             }
 
+
             .addOnFailureListener { error ->
-                Toast.makeText(this, error.localizedMessage, Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this, error.localizedMessage., Toast.LENGTH_SHORT).show()
+                showLoading(false)
+
+                when(error.localizedMessage){
+                    "The email address is already in use by another account." ->{
+                        Toast.makeText(applicationContext, "Email Sudah Terpakai", Toast.LENGTH_SHORT).show()
+                    }
+                    "The email address is badly formatted." ->{
+                        Toast.makeText(applicationContext, "Penulisan Email Salah", Toast.LENGTH_SHORT).show()
+                    }
+                    "A network error (such as timeout, interrupted connection or unreachable host) has occurred."->{
+                        Toast.makeText(applicationContext, "Koneksi Gagal", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
             }
     }
 
@@ -188,6 +211,18 @@ class RegisterActivity : AppCompatActivity() {
         emailLayout.error = null
         passLayout.error = null
         confPassLayout.error = null
+    }
+
+    companion object{
+        private const val EMAIL_USED_CAUTION = "The email address is already in use by another account"
+    }
+
+    private fun showLoading(state: Boolean) {
+        if(state) {
+            binding.pbMain.visibility = View.VISIBLE
+        } else {
+            binding.pbMain.visibility = View.GONE
+        }
     }
 
 }

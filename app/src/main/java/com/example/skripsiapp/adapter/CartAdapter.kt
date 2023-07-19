@@ -115,7 +115,7 @@ class CartAdapter(
 
                     if (barangModel.itemCurrentQuantity > 0){
                         updateData["itemCurrentQuantity"] = barangModel.itemCurrentQuantity - 1
-                        updateData["sold_stock"] = barangModel.sold_stock + 1
+//                        updateData["sold_stock"] = barangModel.monthlyStockQuantity + 1
                         dbBarang.child(cartModel.id!!)
                             .updateChildren(updateData)
                     } else{
@@ -141,7 +141,7 @@ class CartAdapter(
                         val updateData: MutableMap<String, Any> = HashMap()
                         val barangModel = snapshot.getValue(ProductModel::class.java)!!
                         updateData["itemCurrentQuantity"] = barangModel.itemCurrentQuantity + 1
-                        updateData["sold_stock"] = barangModel.sold_stock - 1
+//                        updateData["sold_stock"] = barangModel.monthlyStockQuantity - 1
                         dbBarang.child(cartModel.id!!)
                             .updateChildren(updateData)
                     }
